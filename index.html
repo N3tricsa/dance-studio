@@ -602,6 +602,11 @@
         const successMsg = document.getElementById('successMessage');
         const selectedSpan = document.getElementById('selectedLesson');
 
+        // ВАШИ ДАННЫЕ (замените, если нужно)
+        const PROFORMS_URL = 'https://app.proforms.top/f/pr8019893b';
+        const TELEGRAM_TOKEN = '8881571837:AAETY_TMPch3v8XbNPa2c7uvuEVYQcBydLk';
+        const TELEGRAM_CHAT_ID = '93372553';
+
         form.addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -615,41 +620,62 @@
                 return;
             }
 
-            // Показываем сообщение с выбранным занятием
-            selectedSpan.textContent = direction + ' (' + time + ')';
-            successMsg.classList.add('show');
-            form.reset();
+            // 1. Отправка на Proforms.top
+            fetch(PROFORMS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, phone, direction, time })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка HTTP: ' + response.status);
+                }
+                return response.json(); // Proforms может вернуть JSON
+            })
+            .then(data => {
+                // Если Proforms принял заявку – показываем успех
+                selectedSpan.textContent = direction + ' (' + time + ')';
+                successMsg.classList.add('show');
+                form.reset();
 
-            setTimeout(() => {
-                successMsg.classList.remove('show');
-            }, 6000);
+                // 2. Отправляем уведомление в Telegram (но не ждём ответа)
+                sendTelegramNotification(name, phone, direction, time);
 
-            // Отправка напрямую в Telegram
+                setTimeout(() => {
+                    successMsg.classList.remove('show');
+                }, 6000);
+            })
+            .catch(error => {
+                console.error('Ошибка при отправке на Proforms:', error);
+                alert('Не удалось отправить заявку. Попробуйте позже.');
+            });
+        });
+
+        // Функция отправки в Telegram (с логированием)
+        function sendTelegramNotification(name, phone, direction, time) {
             const message = `🔔 Новая запись!\nИмя: ${name}\nТелефон: ${phone}\nНаправление: ${direction}\nВремя: ${time}`;
 
-            fetch(`https://api.telegram.org/bot8881571837:AAETY_TMPch3v8XbNPa2c7uvuEVYQcBydLk/sendMessage`, {
+            fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    chat_id: 93372553,
+                    chat_id: TELEGRAM_CHAT_ID,
                     text: message
                 })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    selectedSpan.textContent = direction + ' (' + time + ')';
-                    successMsg.classList.add('show');
-                    form.reset();
-                    setTimeout(() => successMsg.classList.remove('show'), 6000);
+                    console.log('✅ Уведомление в Telegram отправлено');
                 } else {
-                    alert('Ошибка отправки в Telegram: ' + data.description);
+                    console.warn('⚠️ Ошибка Telegram:', data.description);
                 }
             })
-            .catch(error => {
-                console.error(error);
-                alert('Ошибка соединения');
-            });    })();
+            .catch(err => {
+                console.error('❌ Ошибка при отправке в Telegram:', err);
+            });
+        }
+    })();
 </script>
 
 </body>
