@@ -584,7 +584,7 @@
             </form>
 
             <div id="successMessage" class="toast">
-                <i class="fas fa-heart"></i> Вы записны на "<span id="selectedLesson"></span>". Для отмены занятия необходимо написать администратору.
+                <i class="fas fa-heart"></i> Вы записаны на "<span id="selectedLesson"></span>". Для отмены занятия необходимо написать администратору.
             </div>
         </div>
     </section>
@@ -624,30 +624,32 @@
                 successMsg.classList.remove('show');
             }, 6000);
 
-            // Реальная отправка (закомментировано)
-            
-            fetch('https://app.proforms.top/f/pr8019893b', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                                    name: name,
-                                    phone: phone,
-                                    direction: direction,
-                                    time: time
-                                })
-            .then(response => {
-                if (response.ok) {
-                    selectedSpan.textContent = direction + ' (' + time + ')';
-                    successMsg.classList.add('show');
-                    form.reset();
-                    setTimeout(() => successMsg.classList.remove('show'), 6000);
-                } else {
-                    alert('Ошибка отправки. Попробуйте позже.');
-                }
-            })
-            .catch(() => alert('Ошибка сети. Проверьте подключение.'));
-            
-        });
+            // Отправка напрямую в Telegram
+const message = `🔔 Новая запись!\nИмя: ${name}\nТелефон: ${phone}\nНаправление: ${direction}\nВремя: ${time}`;
+
+fetch(`https://api.telegram.org/bot<ВАШ_ТОКЕН>/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        chat_id: <ВАШ_CHAT_ID>,
+        text: message
+    })
+})
+.then(res => res.json())
+.then(data => {
+    if (data.ok) {
+        selectedSpan.textContent = direction + ' (' + time + ')';
+        successMsg.classList.add('show');
+        form.reset();
+        setTimeout(() => successMsg.classList.remove('show'), 6000);
+    } else {
+        alert('Ошибка отправки в Telegram: ' + data.description);
+    }
+})
+.catch(error => {
+    console.error(error);
+    alert('Ошибка соединения');
+});
     })();
 </script>
 
