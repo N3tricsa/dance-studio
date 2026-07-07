@@ -625,16 +625,16 @@
             }, 6000);
 
             // Отправка напрямую в Telegram
-const message = `🔔 Новая запись!\nИмя: ${name}\nТелефон: ${phone}\nНаправление: ${direction}\nВремя: ${time}`;
+            const message = `🔔 Новая запись!\nИмя: ${name}\nТелефон: ${phone}\nНаправление: ${direction}\nВремя: ${time}`;
 
-fetch(`https://api.telegram.org/bot<ВАШ_ТОКЕН>/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        chat_id: <ВАШ_CHAT_ID>,
-        text: message
-    })
-})
+            fetch(`https://api.telegram.org/bot8881571837:AAETY_TMPch3v8XbNPa2c7uvuEVYQcBydLk/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: 93372553,
+                text: message
+                })
+        })
 .then(res => res.json())
 .then(data => {
     if (data.ok) {
