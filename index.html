@@ -514,7 +514,6 @@
         </div>
         <div class="form-card">
             <script src="https://forms.yandex.ru/_static/embed.js"></script><iframe src="https://forms.yandex.ru/u/6a4d7df690fa7b24f9664116?iframe=1" frameborder="0" name="ya-form-6a4d7df690fa7b24f9664116" width="650"></iframe>            
-            
             <div id="successMessage" class="toast">
                 <i class="fas fa-heart"></i> Вы записаны на "<span id="selectedLesson"></span>". Для отмены занятия необходимо написать администратору.
             </div>
@@ -527,88 +526,6 @@
     </div>
 
 </div>
-
-<script>
-    (function() {
-        const form = document.getElementById('bookingForm');
-        const successMsg = document.getElementById('successMessage');
-        const selectedSpan = document.getElementById('selectedLesson');
-
-        // ВАШИ ДАННЫЕ (замените, если нужно)
-        const PROFORMS_URL = 'https://app.proforms.top/f/pr8019893b';
-        const TELEGRAM_TOKEN = '8881571837:AAETY_TMPch3v8XbNPa2c7uvuEVYQcBydLk';
-        const TELEGRAM_CHAT_ID = '93372553';
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const name = document.getElementById('name').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const direction = document.getElementById('direction').value;
-            const time = document.getElementById('time').value;
-
-            if (!name || !phone || !direction || !time) {
-                alert('Пожалуйста, заполните все поля.');
-                return;
-            }
-
-            // 1. Отправка на Proforms.top
-            fetch(PROFORMS_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, phone, direction, time })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Ошибка HTTP: ' + response.status);
-                }
-                return response.json(); // Proforms может вернуть JSON
-            })
-            .then(data => {
-                // Если Proforms принял заявку – показываем успех
-                selectedSpan.textContent = direction + ' (' + time + ')';
-                successMsg.classList.add('show');
-                form.reset();
-
-                // 2. Отправляем уведомление в Telegram (но не ждём ответа)
-                sendTelegramNotification(name, phone, direction, time);
-
-                setTimeout(() => {
-                    successMsg.classList.remove('show');
-                }, 6000);
-            })
-            .catch(error => {
-                console.error('Ошибка при отправке на Proforms:', error);
-                alert('Не удалось отправить заявку. Попробуйте позже.');
-            });
-        });
-
-        // Функция отправки в Telegram (с логированием)
-        function sendTelegramNotification(name, phone, direction, time) {
-            const message = `🔔 Новая запись!\nИмя: ${name}\nТелефон: ${phone}\nНаправление: ${direction}\nВремя: ${time}`;
-
-            fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: TELEGRAM_CHAT_ID,
-                    text: message
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) {
-                    console.log('✅ Уведомление в Telegram отправлено');
-                } else {
-                    console.warn('⚠️ Ошибка Telegram:', data.description);
-                }
-            })
-            .catch(err => {
-                console.error('❌ Ошибка при отправке в Telegram:', err);
-            });
-        }
-    })();
-</script>
 
 </body>
 </html>
