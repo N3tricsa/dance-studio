@@ -557,7 +557,71 @@
 
 </div>
 
+<div id="schedule-status">Загрузка расписания...</div>
+<table id="dynamic-schedule">
+    <!-- ... -->
+</table>
+    
+<script>
+    // Сюда вставьте URL вашего веб-приложения, полученный на шаге 2
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyEVMEt_3dZjBvcnIa7OI2AaqQhIAWo3lwH6trAb2xvLKNU7aZiih5PJ6k3DKegXFQ69g/exec';
 
+    // Функция для загрузки данных с сервера
+    async function loadSchedule() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) {
+                throw new Error(`Ошибка HTTP: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log('Данные из таблицы:', data); // для отладки в консоли браузера
+            renderSchedule(data);
+        } catch (error) {
+            console.error('Ошибка загрузки расписания:', error);
+            // Можно показать сообщение пользователю, что данные не загрузились
+            document.getElementById('schedule-status').textContent = 'Не удалось загрузить расписание. Попробуйте позже.';
+        }
+    }
+
+    // Функция для отрисовки таблицы на основе полученных данных
+    function renderSchedule(data) {
+        // data — это массив объектов из Google Таблицы
+        const table = document.querySelector('#dynamic-schedule tbody');
+        if (!table) {
+            console.error('Таблица с id="dynamic-schedule" не найдена');
+            return;
+        }
+
+        // Очищаем таблицу, оставляя только заголовок
+        table.innerHTML = '';
+
+        // Если данных нет, показываем сообщение
+        if (!data || data.length === 0) {
+            const row = table.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 8; // количество дней недели + 1 (время)
+            cell.textContent = 'Нет данных о занятиях';
+            return;
+        }
+
+        // Здесь ваша логика построения таблицы
+        // Например, группировка по дням и времени
+        // Пока просто выведем все строки для примера
+        data.forEach(item => {
+            const row = table.insertRow();
+            // Ячейка с временем
+            const timeCell = row.insertCell();
+            timeCell.textContent = item.time || '—';
+            // Остальные ячейки для дней недели можно заполнить по аналогии
+            // Это зависит от структуры вашей таблицы
+        });
+    }
+
+    // Загружаем расписание после полной загрузки страницы
+    document.addEventListener('DOMContentLoaded', loadSchedule);
+</script>
+
+    
 
 </body>
 </html>
