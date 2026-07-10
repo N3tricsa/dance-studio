@@ -61,6 +61,30 @@
             color: #b29797;
             font-style: italic;
         }
+        
+        /* ===== НОВОЕ МЕНЮ ===== */
+        .main-nav {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .main-nav a {
+            text-decoration: none;
+            color: #7a5f5f;
+            font-weight: 500;
+            padding: 0.3rem 0;
+            border-bottom: 2px solid transparent;
+            transition: 0.2s;
+        }
+        .main-nav a:hover {
+            border-bottom-color: #d4a5a5;
+            color: #c27e7e;
+        }
+        .main-nav a.active {
+            border-bottom-color: #d4a5a5;
+            color: #c27e7e;
+        }
+        
         .tagline {
             background: #e2d5d5;
             padding: 0.5rem 1.2rem;
@@ -326,6 +350,11 @@
                 <p>студия танцев</p>
             </div>
         </div>
+        <!-- ===== НАВИГАЦИЯ ===== -->
+        <nav class="main-nav">
+            <a href="index.html" class="active">Расписание</a>
+            <a href="rules.html">Правила</a>
+        </nav>
         <div class="tagline">
             <i class="fas fa-calendar-alt" style="margin-right: 0.5rem;"></i> Запишись сегодня
         </div>
