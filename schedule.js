@@ -1,7 +1,7 @@
 // schedule.js
 
 // URL вашего веб-приложения (получен на шаге 2)
-const API_URL = 'https://script.google.com/macros/s/AKfycbzfx9jPu8Ra_ZCsfpSz11icaK80_2pw2bdgslPzqweJ1DCEeao17zYgx5fP6hIcf9Kg-w/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyaLSMJ1Fw1zAMpHdydXO4832d0oo-rIZs3HnA3Q8r2oNq46d9T_J3nRnWaGFtbjFl-6w/exec';
 
 // Функция для загрузки данных с сервера
 async function loadSchedule() {
