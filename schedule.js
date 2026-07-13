@@ -23,7 +23,7 @@ async function loadSchedule() {
 function renderSchedule(data) {
     const tbody = document.querySelector('#dynamic-schedule tbody');
     if (!tbody) {
-        console.error('Таблица не найдена');
+        console.error('Таблица с id="dynamic-schedule" не найдена');
         return;
     }
     tbody.innerHTML = '';
@@ -36,10 +36,14 @@ function renderSchedule(data) {
         return;
     }
 
-    // Карта для быстрого доступа: ключ = Day|Time
+    // Строим карту для быстрого поиска: ключ = Day|Time
     const lessonMap = {};
     data.forEach(item => {
-        const key = `${item.Day}|${item.Time}`;
+        // Убедимся, что поля существуют (на всякий случай)
+        const day = item.Day || '';
+        const time = item.Time || '';
+        if (!day || !time) return;
+        const key = `${day}|${time}`;
         lessonMap[key] = {
             lesson: item.Lesson || '',
             teacher: item.Teacher || '',
@@ -82,11 +86,5 @@ function renderSchedule(data) {
     });
 }
 
-// Функция для бронирования (если нужно обновлять Booked)
-async function bookLesson(day, time) {
-    // Здесь можно реализовать отправку POST/UPDATE в скрипт,
-    // но пока оставим заглушку
-    alert('Функция бронирования временно отключена');
-}
-
+// Загружаем расписание после загрузки страницы
 document.addEventListener('DOMContentLoaded', loadSchedule);
