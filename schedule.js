@@ -3,95 +3,90 @@
 // URL вашего веб-приложения (получен на шаге 2)
 const API_URL = 'https://script.google.com/macros/s/AKfycbyaLSMJ1Fw1zAMpHdydXO4832d0oo-rIZs3HnA3Q8r2oNq46d9T_J3nRnWaGFtbjFl-6w/exec';
 
-// Функция для загрузки данных с сервера
 async function loadSchedule() {
+    const status = document.getElementById('schedule-status');
+    if (status) status.textContent = 'Загрузка...';
+
     try {
         const response = await fetch(API_URL);
-        if (!response.ok) {
-            throw new Error(`Ошибка HTTP: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
         const data = await response.json();
         console.log('Данные из таблицы:', data);
         renderSchedule(data);
-        // Скрываем индикатор загрузки, если он есть
-        const status = document.getElementById('schedule-status');
         if (status) status.textContent = '';
     } catch (error) {
-        console.error('Ошибка загрузки расписания:', error);
-        const status = document.getElementById('schedule-status');
+        console.error('Ошибка загрузки:', error);
         if (status) status.textContent = 'Не удалось загрузить расписание. Попробуйте позже.';
     }
 }
 
-// Функция для отрисовки таблицы (здесь ваша логика)
 function renderSchedule(data) {
-    const table = document.querySelector('#dynamic-schedule tbody');
-    if (!table) {
-        console.error('Таблица с id="dynamic-schedule" не найдена');
+    const tbody = document.querySelector('#dynamic-schedule tbody');
+    if (!tbody) {
+        console.error('Таблица не найдена');
         return;
     }
-
-    // Очищаем тело таблицы
-    table.innerHTML = '';
+    tbody.innerHTML = '';
 
     if (!data || data.length === 0) {
-        const row = table.insertRow();
+        const row = tbody.insertRow();
         const cell = row.insertCell();
-        cell.colSpan = 8; // количество столбцов: время + 7 дней
+        cell.colSpan = 8;
         cell.textContent = 'Нет данных о занятиях';
         return;
     }
 
-    // Здесь ваша сложная логика группировки по дням и времени
-    // Пока просто выведем все строки для демонстрации
+    // Карта для быстрого доступа: ключ = Day|Time
+    const lessonMap = {};
     data.forEach(item => {
-        const row = table.insertRow();
-        // Ячейка со временем
+        const key = `${item.Day}|${item.Time}`;
+        lessonMap[key] = {
+            lesson: item.Lesson || '',
+            teacher: item.Teacher || '',
+            booked: item.Booked || 0,
+            total: item.Total || 10
+        };
+    });
+
+    const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const times = [];
+    for (let hour = 9; hour <= 22; hour++) {
+        const h = String(hour).padStart(2, '0');
+        times.push(`${h}:00`);
+    }
+
+    times.forEach(time => {
+        const row = tbody.insertRow();
         const timeCell = row.insertCell();
-        timeCell.textContent = item.time || '—';
-        // Ячейка с днём
-        const dayCell = row.insertCell();
-        dayCell.textContent = item.day || '—';
-        // Ячейка с направлением
-        const dirCell = row.insertCell();
-        dirCell.textContent = item.direction || '—';
-        // Ячейка с преподавателем
-        const teachCell = row.insertCell();
-        teachCell.textContent = item.teacher || '—';
-        // Ячейка со свободными местами
-        const freeCell = row.insertCell();
-        const total = item.total || 0;
-        const booked = item.booked || 0;
-        freeCell.textContent = `${booked}/${total}`;
+        timeCell.className = 'time-col';
+        const nextHour = String(Number(time.split(':')[0]) + 1).padStart(2, '0');
+        timeCell.textContent = `${time} – ${nextHour}:00`;
+
+        daysOfWeek.forEach(day => {
+            const cell = row.insertCell();
+            const key = `${day}|${time}`;
+            const lesson = lessonMap[key];
+
+            if (lesson) {
+                cell.className = 'lesson-cell';
+                cell.innerHTML = `
+                    ${lesson.lesson}
+                    <span class="teacher">${lesson.teacher}</span>
+                    <span class="count">${lesson.booked}/${lesson.total}</span>
+                `;
+            } else {
+                cell.className = 'empty-cell';
+                cell.textContent = '—';
+            }
+        });
     });
 }
 
-// Функция для отправки данных о бронировании (вызывается при записи)
+// Функция для бронирования (если нужно обновлять Booked)
 async function bookLesson(day, time) {
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ day, time })
-        });
-        const result = await response.json();
-        if (result.success) {
-            console.log('Бронирование успешно');
-            // После успешного бронирования обновляем расписание
-            loadSchedule();
-            // Можно также показать сообщение пользователю
-            alert('Вы успешно записаны!');
-        } else {
-            console.error('Ошибка бронирования:', result.message);
-            alert('Не удалось забронировать место. Попробуйте позже.');
-        }
-    } catch (error) {
-        console.error('Ошибка при отправке запроса:', error);
-        alert('Ошибка связи с сервером. Проверьте интернет.');
-    }
+    // Здесь можно реализовать отправку POST/UPDATE в скрипт,
+    // но пока оставим заглушку
+    alert('Функция бронирования временно отключена');
 }
 
-// Загружаем расписание после полной загрузки страницы
 document.addEventListener('DOMContentLoaded', loadSchedule);
