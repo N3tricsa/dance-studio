@@ -86,7 +86,7 @@ function renderSchedule(data) {
 
     const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
     const times = [];
-    for (let hour = 9; hour <= 22; hour++) {
+    for (let hour = 9; hour <= 21; hour++) {
         const h = String(hour).padStart(2, '0');
         times.push(`${h}:00`);
     }
