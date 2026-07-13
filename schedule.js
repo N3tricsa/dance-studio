@@ -1,7 +1,7 @@
 // schedule.js
 
 // URL вашего веб-приложения (получен на шаге 2)
-const API_URL = 'https://script.google.com/macros/s/AKfycbyaLSMJ1Fw1zAMpHdydXO4832d0oo-rIZs3HnA3Q8r2oNq46d9T_J3nRnWaGFtbjFl-6w/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyIZ7q6owU6-PX2KB8pPxfPeeKy0fjyzlhy9h77A1wBiYbJv4uiCAs_CgLO9Jq5alDvig/exec';
 
 // Функция для преобразования даты/времени в строку "ЧЧ:ММ"
 function formatTimeFromDate(dateString) {
